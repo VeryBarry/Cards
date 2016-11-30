@@ -87,10 +87,46 @@ public class Main {
                 aceHighStraight = true;
             }
             if (straight || aceHighStraight) {
-                return true;
+                if(!isFlush(hand)){
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    public static boolean isStraightFlush(HashSet<Card> hand) {
+        HashSet<Card.Rank> ranks = new HashSet<>();
+        ArrayList<Integer> rankOrdinalArray = new ArrayList<>();
+        for (Card c : hand) {
+            ranks.add(c.rank);
+            rankOrdinalArray.add(c.rank.ordinal());
+        }
+        Collections.sort(rankOrdinalArray);
+        int consecutive = 0;
+        ArrayList<Integer> aceHighStraightArray = new ArrayList<Integer>(Arrays.asList(10, 11, 12, 0));
+        for (int i = 1; i < ranks.size(); i++) {
+            boolean straight = false;
+            boolean aceHighStraight = false;
+            if (rankOrdinalArray.get(i) - rankOrdinalArray.get(i - 1) <= 1) {
+                consecutive++;
+                if (consecutive >= 3) {
+                    straight = true;
+                }
+            }
+            if (rankOrdinalArray.containsAll(aceHighStraightArray)) {
+                aceHighStraight = true;
+            }
+            if (straight || aceHighStraight) {
+                if (isFlush(hand)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return false;
+        }
+        return ranks.size() == 1;
     }
 
     public static boolean threeOfAKind (HashSet<Card> hand) {
@@ -116,8 +152,6 @@ public class Main {
         return ranks.size() == 1;
     }
 
-
-
     public static void main(String[] args) {
         HashSet<Card> deck = createDeck();
         HashSet<HashSet<Card>> hands = createHands(deck);
@@ -136,5 +170,8 @@ public class Main {
 
         HashSet<HashSet<Card>> pairs = hands.stream().filter(Main::isPair).collect(Collectors.toCollection(HashSet::new));
         System.out.println(pairs.size());
+
+        HashSet<HashSet<Card>> straightFlush = hands.stream().filter(Main::isStraightFlush).collect(Collectors.toCollection(HashSet::new));
+        System.out.println(straightFlush.size());
     }
 }
